@@ -96,6 +96,7 @@ void setup() {
 
 boolean logOut = false;
 void draw() {
+  int frameStartTime = millis();
   //background(bgColor);
   
   // check status of field calculations and set a flag
@@ -112,17 +113,14 @@ void draw() {
     currentProgress = 0;
   } else {
     // if Field Data not ready, get current progress
-    fldFlag_draw_requestProgress = true;
-    while( !fldFlag_thread_progressReady ) {
-      // wait until progress is ready
-    }
-    currentProgress = fldProgress;
-    fldFlag_thread_progressReady = false;
+    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
   }
   // wait until all updating is complete
   while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
-    println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
+    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
   }
+  
+  println( "Update complete at: " + (millis() - frameStartTime) );
     
   
   
@@ -148,11 +146,13 @@ void draw() {
     }
   }
   updatePixels();
+  println( "Pixels done at: " + (millis() - frameStartTime) );
   // WAIT STEP
   // wait until color calculations are complete before ending the frame
   while( !( flag_CalculateColor0_done && flag_CalculateColor1_done ) ) {
     //println( "Waiting for color calcs: " + flag_CalculateColor0_done + "," + flag_CalculateColor1_done );
   }
+  println( "Color calcs done at: " + (millis() - frameStartTime) );
   
   // Take care of output and housekeeping
   // framerate logger
@@ -210,7 +210,8 @@ void draw() {
   
   //exit();
   
-  
+  println( "Frame done at: " + (millis() - frameStartTime) );
+  println("_______________");
 }
 
 int prevSecond = -1;

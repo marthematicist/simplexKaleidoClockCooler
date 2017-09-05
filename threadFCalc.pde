@@ -104,17 +104,14 @@ class FieldData {
     }
   }
 }
+volatile int calcFieldCounter = 0;
+volatile int calcFieldCountTo = 1;
 
 void thread_CalculateField() {
   flag_CalculateField_done = false;
-  
+  calcFieldCountTo = FD.num;
   for( int n = 0 ; n < FD.num ; n++ ) {
-    // handle request for progress
-    if( fldFlag_draw_requestProgress ) {
-      fldFlag_draw_requestProgress = false;
-      fldProgress = float(n) / float(FD.num);
-      fldFlag_thread_progressReady = true;
-    }
+    calcFieldCounter = n;
     
     // update next element of fld2
     FD.fld2[n] = noise( FD.xf[n] , FD.yf[n] , FD.tf );
