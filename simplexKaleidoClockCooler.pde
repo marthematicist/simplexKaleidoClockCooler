@@ -104,11 +104,6 @@ void draw() {
   
   // check status of field calculations and set a flag
   boolean fieldCalcsDone = flag_CalculateField_done;
-  
-  
-    
-  
-  
     
   // CALCULATE, DRAW, and log STEP
   // check if field calculations are ready to restart. If so, restart.
@@ -131,40 +126,6 @@ void draw() {
     }
   }
   updatePixels();
-  println( "Pixels done at: " + (millis() - frameStartTime) );
-  // WAIT STEP
-  // wait until color calculations are complete before ending the frame
-  while( !( flag_CalculateColor0_done && flag_CalculateColor1_done ) ) {
-    //println( "Waiting for color calcs: " + flag_CalculateColor0_done + "," + flag_CalculateColor1_done );
-  }
-  println( "Color calcs done at: " + (millis() - frameStartTime) );
-  
-  // UPDATE STEP
-  // update color data
-  thread( "thread_UpdateColor0" );
-  thread( "thread_UpdateColor1" );
-  // check if Field Data is ready to update. if so, update it.
-  if( fieldCalcsDone ) {
-    thread( "thread_UpdateField" );
-    println( "NEW FIELD DATA STARTED AT FRAME: " + frameCount );
-    // current progress is now zero
-    currentProgress = 0;
-  } else {
-    // if Field Data not ready, get current progress
-    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
-  }
-  // wait until all updating is complete
-  while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
-    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
-  }
-  
-  println( "Update done at: " + (millis() - frameStartTime) );
-  
-  // Take care of output and housekeeping
-  // framerate logger
-  if( frameCount%500 == 0 ) {
-    println( "frameRate: " , frameRate );
-  }
   // time keepers
   if( second() != prevSecond ) {
     prevSecond = second();
@@ -186,6 +147,40 @@ void draw() {
   }
   // clock drawers
   clock.drawClock();
+  // wait until all updating is complete
+  
+  // WAIT STEP
+  // wait until color calculations are complete before ending the frame
+  while( !( flag_CalculateColor0_done && flag_CalculateColor1_done ) ) {  }
+  
+  
+  
+  // UPDATE STEP
+  // update color data
+  thread( "thread_UpdateColor0" );
+  thread( "thread_UpdateColor1" );
+  // check if Field Data is ready to update. if so, update it.
+  if( fieldCalcsDone ) {
+    thread( "thread_UpdateField" );
+    // current progress is now zero
+    currentProgress = 0;
+  } else {
+    // if Field Data not ready, get current progress
+    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
+  }
+  // Take care of output and housekeeping
+  // framerate logger
+  if( frameCount%500 == 0 ) {
+    println( "frameRate: " , frameRate );
+  }
+  
+  while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
+    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
+  }
+  
+  
+  
+  
   // input doers
   if( mouseDownQuit ) {
     if( millis() - mousePressTime > mousePressTimeout ) {
@@ -216,8 +211,6 @@ void draw() {
   
   //exit();
   
-  println( "Frame done at: " + (millis() - frameStartTime) );
-  println("_______________");
 }
 
 int prevSecond = -1;
