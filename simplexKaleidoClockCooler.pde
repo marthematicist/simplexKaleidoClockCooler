@@ -102,26 +102,7 @@ void draw() {
   // check status of field calculations and set a flag
   boolean fieldCalcsDone = flag_CalculateField_done;
   
-  // UPDATE STEP
-  // update color data
-  thread( "thread_UpdateColor0" );
-  thread( "thread_UpdateColor1" );
-  // check if Field Data is ready to update. if so, update it.
-  if( fieldCalcsDone ) {
-    thread( "thread_UpdateField" );
-    println( "NEW FIELD DATA STARTED AT FRAME: " + frameCount );
-    // current progress is now zero
-    currentProgress = 0;
-  } else {
-    // if Field Data not ready, get current progress
-    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
-  }
-  // wait until all updating is complete
-  while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
-    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
-  }
   
-  println( "Update done at: " + (millis() - frameStartTime) );
     
   
   
@@ -154,6 +135,27 @@ void draw() {
     //println( "Waiting for color calcs: " + flag_CalculateColor0_done + "," + flag_CalculateColor1_done );
   }
   println( "Color calcs done at: " + (millis() - frameStartTime) );
+  
+  // UPDATE STEP
+  // update color data
+  thread( "thread_UpdateColor0" );
+  thread( "thread_UpdateColor1" );
+  // check if Field Data is ready to update. if so, update it.
+  if( fieldCalcsDone ) {
+    thread( "thread_UpdateField" );
+    println( "NEW FIELD DATA STARTED AT FRAME: " + frameCount );
+    // current progress is now zero
+    currentProgress = 0;
+  } else {
+    // if Field Data not ready, get current progress
+    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
+  }
+  // wait until all updating is complete
+  while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
+    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
+  }
+  
+  println( "Update done at: " + (millis() - frameStartTime) );
   
   // Take care of output and housekeeping
   // framerate logger
