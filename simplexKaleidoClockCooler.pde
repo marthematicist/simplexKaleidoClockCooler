@@ -109,6 +109,7 @@ void draw() {
   // check if Field Data is ready to update. if so, update it.
   if( fieldCalcsDone ) {
     thread( "thread_UpdateField" );
+    println( "NEW FIELD DATA STARTED AT FRAME: " + frameCount );
     // current progress is now zero
     currentProgress = 0;
   } else {
@@ -120,7 +121,7 @@ void draw() {
     //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
   }
   
-  println( "Update complete at: " + (millis() - frameStartTime) );
+  println( "Update done at: " + (millis() - frameStartTime) );
     
   
   
