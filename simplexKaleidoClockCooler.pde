@@ -41,6 +41,11 @@ volatile boolean colFlag_thread_doneUpdating1 = false;
 volatile boolean colFlag_thread_loopComplete0 = false;
 volatile boolean colFlag_thread_loopComplete1 = false;
 
+volatile color[] col0;
+volatile color[] col1;
+volatile color[] col0a;
+volatile color[] col1a;
+
 
 // resolution helpers
 int halfWidth;
@@ -59,12 +64,6 @@ int millisOffset;
 
 Clock clock;
 
-volatile FieldData FD; 
-volatile FieldDataOut FDO; 
-volatile ColorData CD0;
-volatile ColorData CD1;
-volatile ColorData CDO0;
-volatile ColorData CDO1;
 
 void setup() {
   //frameRate(25);
@@ -83,15 +82,19 @@ void setup() {
   PA = new PixelArray();
   num0 = PA.num/2;
   num1 = PA.num-num0;
-  FD = new FieldData();
-  FDO = new FieldDataOut();
-  CD0 = new ColorData( num0 );
-  CDO0 = new ColorData( num0 );
-  CD1 = new ColorData( num1 );
-  CDO1 = new ColorData( num1 );
-  
-  
-  
+  setupFieldData( PA.num );
+  col0 = new color[num0];
+  col0a = new color[num0];
+  for( int i = 0 ; i < num0 ; i++ ) {
+    col0[i] = color(0);
+    col0a[i] = color(0);
+  }
+  col1 = new color[num1];
+  col1a = new color[num1];
+  for( int i = 0 ; i < num1 ; i++ ) {
+    col1[i] = color(0);
+    col1a[i] = color(0);
+  }
 }
 
 boolean logOut = false;
@@ -121,9 +124,9 @@ void draw() {
     int ind = PA.I[i];
     if( ind >=0 ) {
       if( ind < num0 ) {
-        pixels[ i ] = CDO0.col[ ind ];
+        pixels[ i ] = col0[ ind ];
       } else {
-        pixels[ i ] = CDO1.col[ ind-num0 ];
+        pixels[ i ] = col1[ ind-num0 ];
       }
     }
   }
