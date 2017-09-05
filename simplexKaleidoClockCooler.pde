@@ -14,8 +14,10 @@ volatile boolean flag_UpdateField_done = true;
 
 volatile boolean flag_CalculateColor0_done = true;
 volatile boolean flag_UpdateColor0_done = true;
+volatile boolean flag_CalculateValues0_done = true;
 volatile boolean flag_CalculateColor1_done = true;
 volatile boolean flag_UpdateColor1_done = true;
+volatile boolean flag_CalculateValues1_done = true;
 
 
 volatile boolean fldFlag_thread_readyToUpdate = false;
@@ -83,6 +85,7 @@ void setup() {
   num0 = PA.num/2;
   num1 = PA.num-num0;
   setupFieldData( PA.num );
+  setupValues();
   col0 = new color[num0];
   col0a = new color[num0];
   for( int i = 0 ; i < num0 ; i++ ) {
@@ -104,7 +107,10 @@ void draw() {
   
   // check status of field calculations and set a flag
   boolean fieldCalcsDone = flag_CalculateField_done;
-    
+  
+  
+  
+  
   // CALCULATE, DRAW, and log STEP
   // check if field calculations are ready to restart. If so, restart.
   if( fieldCalcsDone ) {
@@ -126,6 +132,35 @@ void draw() {
     }
   }
   updatePixels();
+  
+  // wait until color calculations are complete
+  while( !( flag_CalculateColor0_done && flag_CalculateColor1_done ) ) {  }
+  
+  
+  // UPDATE STEP
+  // update color data
+  thread( "thread_UpdateColor0" );
+  thread( "thread_UpdateColor1" );
+  // check if Field Data is ready to update. if so, update it.
+  if( fieldCalcsDone ) {
+    thread( "thread_UpdateField" );
+    // current progress is now zero
+    currentProgress = 0;
+  } else {
+    // if Field Data not ready, get current progress
+    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
+  }
+  // wait until all updating is complete
+  while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
+    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
+  }
+  
+  
+  // start next value calculations
+  thread( "thread_CalculateValues0" );
+  thread( "thread_CalculateValues1" );
+  
+  
   // time keepers
   if( second() != prevSecond ) {
     prevSecond = second();
@@ -147,36 +182,21 @@ void draw() {
   }
   // clock drawers
   clock.drawClock();
-  // wait until all updating is complete
   
-  // WAIT STEP
-  // wait until color calculations are complete before ending the frame
-  while( !( flag_CalculateColor0_done && flag_CalculateColor1_done ) ) {  }
+  // wait until value calculations are complete
+  while( !( flag_CalculateValues0_done && flag_CalculateValues1_done ) ) {  }
   
-  
-  
-  // UPDATE STEP
-  // update color data
-  thread( "thread_UpdateColor0" );
-  thread( "thread_UpdateColor1" );
-  // check if Field Data is ready to update. if so, update it.
-  if( fieldCalcsDone ) {
-    thread( "thread_UpdateField" );
-    // current progress is now zero
-    currentProgress = 0;
-  } else {
-    // if Field Data not ready, get current progress
-    currentProgress = float(calcFieldCounter)/float(calcFieldCountTo);
-  }
   // Take care of output and housekeeping
   // framerate logger
   if( frameCount%500 == 0 ) {
     println( "frameRate: " , frameRate );
   }
+  // WAIT STEP
   
-  while( !( flag_UpdateField_done && flag_UpdateColor0_done && flag_UpdateColor1_done ) ) {
-    //println( "waiting for update to complete: " + flag_UpdateField_done + "," + flag_UpdateColor0_done + "," + flag_UpdateColor1_done );
-  }
+  
+  
+  
+  
   
   
   
